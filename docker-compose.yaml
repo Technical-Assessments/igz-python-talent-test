@@ -1,0 +1,58 @@
+version: '3.6'
+
+services:
+  ######## ======== This service will launch a postgress DB.======== ########
+  db: # The serive name <db> is expected by django default db name.
+    container_name: Postgres-db-container
+    image: postgres
+    restart: always
+    tty: true   
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      # DB credentials to create the db
+      POSTGRES_NAME: ${POSTGRES_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  ######## ======== This is the main service Django rest API ======== ########
+  django-dev:
+    container_name: Django-server-container
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db
+    build:
+      context: .
+      target: django-dev
+    restart: always
+    tty: true
+    ports:
+      - "8000:8000"
+      # debugging port:
+      - "3000:3000"
+    volumes: # For debugging purposes
+      - ./apps:/code/apps
+      - ./main:/code/main
+      - ./static:/code/static
+      - ./tests:/code/tests      
+    environment:
+      # DB credentials needed to connect to the db
+      POSTGRES_NAME: ${POSTGRES_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # ENV variables expected by Django to create a superuser
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
+      DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+
+      DEBUG:

@@ -1,0 +1,16 @@
+asgiref==3.5.0
+certifi==2021.10.8
+Django==4.0.1
+djangorestframework==3.13.1
+django-import-export==2.7.1
+django-seed==0.3.1
+drf-yasg==1.20.0
+Faker==12.1.0
+psycopg2-binary==2.9.3
+python-dateutil==2.8.2
+pytz==2021.3
+six==1.16.0
+sqlparse==0.4.2
+toposort==1.7
+debugpy==1.5.1
+pytest-django==4.5.2
